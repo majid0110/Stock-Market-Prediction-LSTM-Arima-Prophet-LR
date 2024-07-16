@@ -2,7 +2,7 @@ name: Daily Update
 
 on:
   schedule:
-    - cron: '0 8 * * *'  # Run daily at 08:00 UTC
+    - cron: '* * * * *'  # Run every minute
   workflow_dispatch:  # Allows manual triggering
 
 jobs:
@@ -34,11 +34,3 @@ jobs:
         cat update_file.py
         echo "Running update_file.py:"
         python update_file.py
-
-    - name: Check for errors
-      if: failure()
-      run: |
-        echo "Error occurred. Printing environment variables (excluding secrets):"
-        env | grep -v -i key
-        echo "Printing GitHub event payload:"
-        cat $GITHUB_EVENT_PATH
