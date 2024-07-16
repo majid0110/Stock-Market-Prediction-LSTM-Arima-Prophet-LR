@@ -2,18 +2,21 @@ import os
 from github import Github
 
 def update_file():
+    print("Starting update_file function")
     g = Github(os.environ['GH_PAT'])
     
     repo = g.get_repo("majid0110/Stock-Market-Prediction-LSTM-Arima-Prophet-LR")
+    print(f"Repository accessed: {repo.full_name}")
     
     file_path = "daily_updates.py"
     new_content = "print('hello')\n"
 
     try:
-        # Try to get the file contents
+        print(f"Attempting to get contents of {file_path}")
         file = repo.get_contents(file_path)
+        print(f"File {file_path} found. SHA: {file.sha}")
         
-        # If the file exists, update it
+        print(f"Updating file {file_path}")
         repo.update_file(
             path=file_path,
             message="Daily update",
@@ -22,17 +25,19 @@ def update_file():
         )
         print(f"File {file_path} updated successfully")
     except Exception as e:
+        print(f"Exception occurred: {str(e)}")
         if "Not Found" in str(e):
-            # If the file doesn't exist, create it
+            print(f"File {file_path} not found. Creating it.")
             repo.create_file(
                 path=file_path,
-                message="Create daily_updates.py",
+                message=f"Create {file_path}",
                 content=new_content
             )
             print(f"File {file_path} created successfully")
         else:
-            # If there's another error (like SHA mismatch), fetch the latest content and update
+            print("Attempting to resolve conflict")
             latest_file = repo.get_contents(file_path)
+            print(f"Latest file SHA: {latest_file.sha}")
             repo.update_file(
                 path=file_path,
                 message="Daily update",
