@@ -1,9 +1,9 @@
 name: Daily Update
 
 on:
-  schedule:
-    - cron: '* * * * *'  # Run every minute
-  workflow_dispatch:  # Allows manual triggering
+ schedule:
+    - cron: '0 8 * * *'  # Run daily at 08:00 UTC
+ workflow_dispatch:  # Allows manual triggering
 
 jobs:
   update:
