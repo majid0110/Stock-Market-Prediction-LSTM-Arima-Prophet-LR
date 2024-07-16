@@ -25,4 +25,18 @@ jobs:
     - name: Run update script
       env:
         GH_PAT: ${{ secrets.GH_PAT }}
-      run: python update_file.py
+      run: |
+        python -V
+        pip list
+        python update_file.py
+      continue-on-error: true
+
+    - name: Check for errors
+      if: failure()
+      run: |
+        echo "Error occurred. Printing last 50 lines of update_file.py:"
+        tail -n 50 update_file.py
+        echo "Printing environment variables (excluding secrets):"
+        env | grep -v -i key
+        echo "Printing GitHub event payload:"
+        cat $GITHUB_EVENT_PATH
