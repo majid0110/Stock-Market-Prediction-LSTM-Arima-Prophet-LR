@@ -24,18 +24,10 @@ def update_file():
             sha=file.sha
         )
         print(f"File {file_path} updated successfully")
-    except Exception as e:
-        print(f"Exception occurred: {str(e)}")
-        if "Not Found" in str(e):
-            print(f"File {file_path} not found. Creating it.")
-            repo.create_file(
-                path=file_path,
-                message=f"Create {file_path}",
-                content=new_content
-            )
-            print(f"File {file_path} created successfully")
-        else:
-            print("Attempting to resolve conflict")
+    except github.GithubException as e:
+        if e.status == 409:
+            print(f"Conflict error: {str(e)}")
+            print("Attempting to resolve conflict by fetching the latest file SHA")
             latest_file = repo.get_contents(file_path)
             print(f"Latest file SHA: {latest_file.sha}")
             repo.update_file(
@@ -44,7 +36,17 @@ def update_file():
                 content=new_content,
                 sha=latest_file.sha
             )
-            print(f"File {file_path} updated successfully after resolving conflicts")
+            print(f"File {file_path} updated successfully after resolving conflict")
+        elif e.status == 404:
+            print(f"File {file_path} not found. Creating it.")
+            repo.create_file(
+                path=file_path,
+                message=f"Create {file_path}",
+                content=new_content
+            )
+            print(f"File {file_path} created successfully")
+        else:
+            print(f"An error occurred: {str(e)}")
 
 if __name__ == "__main__":
     update_file()
