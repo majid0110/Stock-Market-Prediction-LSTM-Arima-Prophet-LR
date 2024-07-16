@@ -6,29 +6,40 @@ def update_file():
     
     repo = g.get_repo("majid0110/Stock-Market-Prediction-LSTM-Arima-Prophet-LR")
     
-    daily_updates = repo.get_contents("daily_updates.py")
-    
+    file_path = "daily_updates.py"
+    new_content = "print('hello')\n"
+
     try:
-        file = repo.get_contents("stock_market_prediction.py")
-        new_content = "print('hello')\n"
+        # Try to get the file contents
+        file = repo.get_contents(file_path)
         
+        # If the file exists, update it
         repo.update_file(
-            path="stock_market_prediction.py",
+            path=file_path,
             message="Daily update",
             content=new_content,
-            sha=file.sha  # Use the SHA of stock_market_prediction.py
+            sha=file.sha
         )
-        print("File updated successfully")
+        print(f"File {file_path} updated successfully")
     except Exception as e:
-        print(f"An error occurred: {str(e)}")
-        # If the file doesn't exist, create it
         if "Not Found" in str(e):
+            # If the file doesn't exist, create it
             repo.create_file(
-                path="stock_market_prediction.py",
-                message="Create stock_market_prediction.py",
-                content="print('hello')\n"
+                path=file_path,
+                message="Create daily_updates.py",
+                content=new_content
             )
-            print("File created successfully")
+            print(f"File {file_path} created successfully")
+        else:
+            # If there's another error (like SHA mismatch), fetch the latest content and update
+            latest_file = repo.get_contents(file_path)
+            repo.update_file(
+                path=file_path,
+                message="Daily update",
+                content=new_content,
+                sha=latest_file.sha
+            )
+            print(f"File {file_path} updated successfully after resolving conflicts")
 
 if __name__ == "__main__":
     update_file()
