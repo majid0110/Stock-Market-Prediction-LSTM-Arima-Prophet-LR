@@ -6,7 +6,7 @@ def update_file():
     
     repo = g.get_repo("majid0110/Stock-Market-Prediction-LSTM-Arima-Prophet-LR")
     
-    file = repo.get_contents("stock_market_prediction.py")
+    file = repo.get_contents("daily_updates.py")
     
     new_content = "print('hello')\n"
     
