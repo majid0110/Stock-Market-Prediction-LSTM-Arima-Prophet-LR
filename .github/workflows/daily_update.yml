@@ -1,36 +1,48 @@
-name: Daily Update
+name:Update
 
 on:
- schedule:
-    - cron: '0 */6 * * *'
- workflow_dispatch:  # Allows manual triggering
+  schedule:
+    - cron: '0 6 * * *'  # Runs every day at 6 AM UTC
+  workflow_dispatch:  # Allows manual triggering
 
 jobs:
   update:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.x'
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install PyGithub
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install PyGithub
 
-    - name: Run update script
-      env:
-        GH_PAT: ${{ secrets.GH_PAT }}
-      run: |
-        echo "Python version:"
-        python -V
-        echo "Installed packages:"
-        pip list
-        echo "Contents of update_file.py:"
-        cat update_file.py
-        echo "Running update_file.py:"
-        python update_file.py
+      - name: Check if today is a random update day
+        id: check_day
+        run: |
+          python -c "
+          import random, datetime
+          random.seed(datetime.datetime.now().isocalendar()[1])  # Ensure different days each week
+          days = random.sample(range(7), k=random.choice([3, 4]))  # Pick 3 or 4 days
+          if datetime.datetime.today().weekday() not in days:
+              print('Skipping update')
+              exit(1)
+          "
+
+      - name: Run update script
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: |
+          echo "Python version:"
+          python -V
+          echo "Installed packages:"
+          pip list
+          echo "Contents of update_file.py:"
+          cat update_file.py
+          echo "Running update_file.py:"
+          python update_file.py
